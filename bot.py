@@ -15,7 +15,7 @@ session_str = os.getenv('SESSION_STR')
 app = Client('bot', api_id, api_hash, session_string=session_str)
 print('Bot started')
 
-@app.on_message(filters.channel)
+@app.on_message(filters.channel & filters.command('rmdup'))
 async def main(_, message):
 
     chat_id = message.chat.id
@@ -62,21 +62,22 @@ async def main(_, message):
 
                 else:
 
-                    await msg.delete()
+                    try:
+                        await msg.delete()
+                    except Exception:
+                        print(f'Failed to delete {media}')
                     
                     duplicate += 1
 
             fetched += 1
 
-            # if fetched % 20 == 0:
+            if fetched % 50 == 0:
 
-                # await res.edit_text(
-                #     f'{res.text}\n'
-                #     f'Messages fetched - {fetched}\n'
-                #     f'Duplicate found - {duplicate}'
-                # )
-
-            print(fetched, duplicate, total_messages)
+                await res.edit_text(
+                    f'{res.text}\n'
+                    f'Messages fetched - {fetched}\n'
+                    f'Duplicate found - {duplicate}'
+                )
 
             time.sleep(0.2)
 
@@ -91,6 +92,9 @@ async def main(_, message):
         else:
 
             time.sleep(10)
+
+    
+    await app.send_message(chat_id, 'Done')
 
 
 app.run()
